@@ -11,19 +11,21 @@ from spitfire.runtime import baked
 
 
 def is_skip():
-  pass
+    pass
+
+
 is_skip.skip_filter = True
 
 
 def no_skip():
-  pass
+    pass
 
 
 class PySpitfireTemplate(template.SpitfireTemplate):
 
-  def __init__(self, *args, **kwargs):
-    super(PySpitfireTemplate, self).__init__(*args, **kwargs)
-    self.filter_function = self.py_filter_function
+    def __init__(self, *args, **kwargs):
+        super(PySpitfireTemplate, self).__init__(*args, **kwargs)
+        self.filter_function = self.py_filter_function
 
 
 # Do not inherit from unittest.TestCase to ensure that these tests don't run.
@@ -31,36 +33,36 @@ class PySpitfireTemplate(template.SpitfireTemplate):
 # should make sure that both implementations are equivalent.
 class _TestTemplate(object):
 
-  template_cls = None
+    template_cls = None
 
-  def setUp(self):
-    self.template = self.template_cls()
-    self.template._filter_function = lambda v: 'FILTERED'
+    def setUp(self):
+        self.template = self.template_cls()
+        self.template._filter_function = lambda v: 'FILTERED'
 
-  def test_skip_filter(self):
-    self.assertEqual(self.template.filter_function('foo', is_skip), 'foo')
+    def test_skip_filter(self):
+        self.assertEqual(self.template.filter_function('foo', is_skip), 'foo')
 
-  def test_no_skip(self):
-    self.assertEqual(self.template.filter_function('foo', no_skip), 'FILTERED')
+    def test_no_skip(self):
+        self.assertEqual(
+            self.template.filter_function('foo', no_skip), 'FILTERED')
 
-  def test_str(self):
-    self.assertEqual(self.template.filter_function('foo'), 'FILTERED')
+    def test_str(self):
+        self.assertEqual(self.template.filter_function('foo'), 'FILTERED')
 
-  def test_sanitized(self):
-    got = self.template.filter_function(baked.SanitizedPlaceholder('foo'))
-    want = baked.SanitizedPlaceholder('foo')
-    self.assertEqual(got, want)
-    self.assertEqual(type(got), type(want))
+    def test_sanitized(self):
+        got = self.template.filter_function(baked.SanitizedPlaceholder('foo'))
+        want = baked.SanitizedPlaceholder('foo')
+        self.assertEqual(got, want)
+        self.assertEqual(type(got), type(want))
 
 
 class TestTemplateC(_TestTemplate, unittest.TestCase):
-  template_cls = template.SpitfireTemplate
+    template_cls = template.SpitfireTemplate
 
 
 class TestTemplatePy(_TestTemplate, unittest.TestCase):
-  template_cls = PySpitfireTemplate
-
+    template_cls = PySpitfireTemplate
 
 
 if __name__ == '__main__':
-  unittest.main()
+    unittest.main()
